@@ -1,0 +1,405 @@
+﻿@{
+    ViewBag.Title = "Import";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style type="text/css">
+    .required {
+        color: red;
+    }
+</style>
+
+<div class="panel panel-default">
+
+    <div class="panel-heading">
+        Import csv files
+    </div>
+    <div class="panel-body">
+        <div class="col-md-12">
+            <!-- BEGIN SAMPLE FORM PORTLET-->
+            <div class="portlet light">
+                <form id="frm_upload" name="frm_upload" method="post" onsubmit="return validate();">
+                    <div class=" leftside1 formareaspl" style="width: 100%">
+                        <div class="inner-scroll">
+                            <table style="border: none" id="tbl_bulk_upload" class="table">
+                                <tr>
+                                    <td style="width: 50px">Log Type<span class="required">*</span></td>
+                                    <td style="width: 300px">
+                                        <label style="font-weight:normal!important"><input type="radio" name="logType" value="dPaperLog" @(ViewBag.logType == "dPaperLog" ? "checked" : "")> Purchase (PaperLog)</label>
+                                        <label style="font-weight:normal!important"><input type="radio" name="logType" value="dTicket" @(ViewBag.logType == "dTicket" ? "checked" : "")> Usage (Tickets)</label>
+                                        <label style="font-weight:normal!important"><input type="radio" name="logType" value="invPaper" @(ViewBag.logType == "endInv" ? "checked" : "")> Physical (csv)</label>
+                                        <label style="font-weight:normal!important"><input type="radio" name="logType" value="Xfer" @(ViewBag.logType == "Xfer" ? "checked" : "")> Transfer (csv)</label>
+
+                                        <label style="font-weight:normal!important"><input type="radio" name="logType" value="paper" @(ViewBag.logType == "paper" ? "checked" : "")> Paper</label>
+                                        <label style="font-weight:normal!important"><input type="radio" name="logType" value="paper2019" @(ViewBag.logType == "paper2019" ? "checked" : "")> Paper2019</label>
+                                        <label style="font-weight:normal!important"><input type="radio" name="logType" value="Leads" @(ViewBag.logType == "Leads" ? "checked" : "")> New Leads</label>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="width: 50px">File Upload<span class="required">*</span></td>
+                                    <td style="width: 300px">
+                                        <input type="file" id="fileUpload" name="fileUpload" onchange="fileSelected(this);" />
+                                        <input type="hidden" value="" name="hdnFile" id="hdnFile" />
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    <label id="lblProgress"></label><br />
+                    <input type="submit" name="button" class="btn blue" id="buttonMedia" onclick="return submitConf();" value="Submit" />
+                    
+                    <br /> <br />
+                    <b>Note: </b>Upload txt or csv (comma separated) file only
+                </form>
+
+            </div>
+        </div>
+
+        @*Transaction Log*@
+        <div class="row">
+            <div class="col-md-12">
+                @if (((List<CalcLib.TransactionLog>)ViewBag.TransLogData) != null)
+                {
+                    if (((List<CalcLib.TransactionLog>)ViewBag.TransLogData).Count > 0)
+                    {
+                        <h3>Transaction Log</h3>
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr style="color:White;background-color:#000000;">
+                                        <td style='text-align:center'>Date</td>
+                                        <td style='text-align:center'>Doc Number</td>
+                                        <td style='text-align:center'>Owner</td>
+                                        <td style='text-align:center'>Paper Code</td>
+                                        <td style='text-align:center'>In/Out</td>
+                                        <td style='text-align:center'>Sheet</td>
+                                        <td style='text-align:center'>Cost/M</td>
+                                        <td style='text-align:center'>End Bal</td>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (CalcLib.TransactionLog log in ((List<CalcLib.TransactionLog>)ViewBag.TransLogData))
+                                    {
+                                        string transdate = log.TransactionDate == null ? "" : log.TransactionDate.Value.ToString("MM/dd/yy");
+                                        <tr>
+                                            <td style='text-align:left'>@transdate</td>
+                                            <td style='text-align:center'>@log.DocNum</td>
+                                            <td style='text-align:center'>@log.Owner</td>
+                                            <td style='text-align:center'>@log.PaperCode</td>
+                                            <td style='text-align:center'>@log.PaperInOut</td>
+                                            <td style='text-align:center'>@log.SheetCount</td>
+                                            <td style='text-align:center'>@log.CostPerM.ToString("N2")</td>
+                                            <td style='text-align:center'>@log.EndingBalance</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                @if (((List<CalcLib.Customer>)ViewBag.Customer) != null)
+                {
+                    int ctr = 0;
+                    if (((List<CalcLib.Customer>)ViewBag.Customer).Count > 0)
+                    {
+                        <h3>Transaction Log</h3>
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr style="color:White;background-color:#000000;">
+                                        <td style='text-align:center'>Company</td>
+                                        <td style='text-align:center'>SIC Description</td>
+                                        <td style='text-align:center'>Import</td>
+                                        <td style='text-align:center'>Message</td>
+                                        <td style='text-align:center'>SalesMn</td>
+
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (CalcLib.Customer log in ((List<CalcLib.Customer>)ViewBag.Customer))
+                                    {
+                                        ctr += 1;
+                                        <tr>
+                                            <td style='text-align:left'>@log.Company</td>
+                                            <td style='text-align:left'>@log.SicDesc</td>
+                                            <td style='text-align:center'>@log.ISCNo</td>
+                                            <td style='text-align:center'>@log.Category</td>
+                                            <td style='text-align:center'>@log.SalesMan</td>
+                                        </tr>
+                                    }
+                                    <tr>
+                                        <td style='text-align:left;column-span = ' 4''>Total Duplicated</td>
+                                        <td style='text-align:center'>@ctr</td>
+
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                @if (((List<CalcLib.Paper>)ViewBag.Paper2019) != null)
+                {
+                    if (((List<CalcLib.Paper>)ViewBag.Paper2019).Count > 0)
+                    {
+                        <h3>Transaction Log</h3>
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr style="color:White;background-color:#000000;">
+                                        <td style='text-align:center'>PaperCode</td>
+                                        <td style='text-align:center'>ISC Value</td>
+                                        <td style='text-align:center'>Description</td>
+                                        <td style='text-align:center'>Sheets</td>
+                                        <td style='text-align:center'>CPM</td>
+                                        <td style='text-align:center'>PO Cost</td>
+                                        <td style='text-align:center'>Per Skid</td>
+                                        <td style='text-align:center'>Per Ream</td>
+                                        <td style='text-align:center'>Caliper</td>
+                                        <td style='text-align:center'>Skid</td>
+                                        <td style='text-align:center'>Ream</td>
+                                        <td style='text-align:center'>Inch</td>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (CalcLib.Paper log in ((List<CalcLib.Paper>)ViewBag.Paper2019))
+                                    {
+                                        <tr>
+                                            <td  style='text-align:left'>@log.PaperCode</td>
+                                            <td style='text-align:left;white-space:nowrap' >@log.IscValue</td>
+                                            <td style='text-align: left; white-space: nowrap'>@log.PaperDesc</td>
+                                            <td style='text-align:right'>@log.InventoryQty</td>
+                                            <td style='text-align:right'>@log.CPM.Value.ToString("N2")</td>
+                                            <td style='text-align:right'>@log.POCPM.Value.ToString("N2")</td>
+                                            <td style='text-align:right'>@log.Skid</td>
+                                            <td style='text-align:right'>@log.Ream</td>
+                                            <td style='text-align:right'>@log.Caliper</td>
+                                            <td style='text-align:center;color:red'><b>@log.SkidInvCount</b></td>
+                                            <td style='text-align:center;color:red'>@log.ReamInvCount</td>
+                                            <td style='text-align:right;color:red'>@log.BrokenSkidCount</td>
+                                        </tr>
+                                    }
+
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+        @*Paper Log
+            <div class="row">
+                <div class="col-md-12">
+                    @if (((List<CalcLib.dPaperLog>)ViewBag.PaperLogs).Count > 0)
+                    {
+                        <h3>dPaperLogs</h3>
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr style="color:White;background-color:#000000;">
+                                        <td style='text-align:left'>Date</td>
+                                        <td style='text-align:left'>Owner</td>
+                                        <td style='text-align:left'>PaperCode</td>
+                                        <td style='text-align:right'>QtyOrder</td>
+                                        <td style='text-align:right'>CostPerM</td>
+                                        <td style='text-align:left'>Paper</td>
+                                        <td style='text-align:left'>Weight</td>
+                                        <td style='text-align:left'>Stock</td>
+                                        <td style='text-align:right'>Width</td>
+                                        <td style='text-align:right'>Length</td>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (CalcLib.dPaperLog plog in ((List<CalcLib.dPaperLog>)ViewBag.PaperLogs))
+                                    {
+                                        <tr>
+                                            <td style='text-align:left'>@plog.date.ToShortDateString()</td>
+                                            <td style='text-align:left'>@plog.Owner</td>
+                                            <td style='text-align:left'>@plog.PaperCode</td>
+                                            <td style='text-align:right'>@plog.QtyOrder</td>
+                                            <td style='text-align:right'>@plog.CostPerM</td>
+                                            <td style='text-align:left'>@plog.Paper</td>
+                                            <td style='text-align:left'>@plog.Weight</td>
+                                            <td style='text-align:left'>@plog.Stock</td>
+                                            <td style='text-align:right'>@plog.Width</td>
+                                            <td style='text-align:right'>@plog.Length</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+        *@
+
+        @*Ticket Log
+            <div class="row">
+                <div class="col-md-12">
+                    @if (((List<CalcLib.dTicket>)ViewBag.dTickets).Count > 0)
+                    {
+                        <div class="table-responsive" style="overflow: hidden;overflow-x: scroll;">
+                            <h3>dTicket</h3>
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr style="color:White;background-color:#000000;">
+                                        <td>QUOTENUM</td>
+                                        <td>FORM</td>
+                                        <td>UP</td>
+                                        <td>PPRSIZE</td>
+                                        <td>PPRCOD</td>
+                                        <td>MRQTY</td>
+                                        <td>OVERQTY</td>
+                                        <td>GOODSHT</td>
+                                        <td>RUN</td>
+                                        <td>CLRDESC</td>
+                                        <td>PMSDESC</td>
+                                        <td>NUMPLATE</td>
+                                        <td>NUM8S</td>
+                                        <td>NUM12S</td>
+                                        <td>NUM16S</td>
+                                        <td>NUM24S</td>
+                                        <td>NUM32S</td>
+                                        <td>PPRDATE</td>
+                                        <td>AQDESC</td>
+                                        <td>TCKTNUM</td>
+                                        <td>NUMMR</td>
+                                        <td>NUMFORM</td>
+                                        <td>NUM4PS</td>
+                                        <td>RUP</td>
+                                        <td>NUMCGIS</td>
+                                        <td>NFP</td>
+                                        <td>NBP</td>
+                                        <td>S1</td>
+                                        <td>S2</td>
+                                        <td>S3</td>
+                                        <td>F1</td>
+                                        <td>F2</td>
+                                        <td>F3</td>
+                                        <td>SEQNUM</td>
+                                        <td>BaseWt</td>
+                                        <td>Stock</td>
+                                        <td>PaperW</td>
+                                        <td>PaperL</td>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (CalcLib.dTicket tkt in ((List<CalcLib.dTicket>)ViewBag.dTickets))
+                                    {
+                                        <tr>
+                                            <td>@tkt.QUOTENUM</td>
+                                            <td>@tkt.FORM</td>
+                                            <td>@tkt.UP</td>
+                                            <td>@tkt.PPRSIZE</td>
+                                            <td>@tkt.PPRCOD</td>
+                                            <td>@tkt.MRQTY</td>
+                                            <td>@tkt.OVERQTY</td>
+                                            <td>@tkt.GOODSHT</td>
+                                            <td>@tkt.RUN</td>
+                                            <td>@tkt.CLRDESC</td>
+                                            <td>@tkt.PMSDESC</td>
+                                            <td>@tkt.NUMPLATE</td>
+                                            <td>@tkt.NUM8S</td>
+                                            <td>@tkt.NUM12S</td>
+                                            <td>@tkt.NUM16S</td>
+                                            <td>@tkt.NUM24S</td>
+                                            <td>@tkt.NUM32S</td>
+                                            <td>@tkt.PPRDATE.ToShortDateString()</td>
+                                            <td>@tkt.AQDESC</td>
+                                            <td>@tkt.TCKTNUM</td>
+                                            <td>@tkt.NUMMR</td>
+                                            <td>@tkt.NUMFORM</td>
+                                            <td>@tkt.NUM4PS</td>
+                                            <td>@tkt.RUP</td>
+                                            <td>@tkt.NUMCGIS</td>
+                                            <td>@tkt.NFP</td>
+                                            <td>@tkt.NBP</td>
+                                            <td>@tkt.S1</td>
+                                            <td>@tkt.S2</td>
+                                            <td>@tkt.S3</td>
+                                            <td>@tkt.F1</td>
+                                            <td>@tkt.F2</td>
+                                            <td>@tkt.F3</td>
+                                            <td>@tkt.SEQNUM</td>
+                                            <td>@tkt.BaseWt</td>
+                                            <td>@tkt.Stock</td>
+                                            <td>@tkt.PaperW</td>
+                                            <td>@tkt.PaperL</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+        *@
+    </div>
+</div>
+<!-- END SAMPLE FORM PORTLET-->
+
+
+<script type="text/javascript">
+
+    var si;
+
+    function validate() {
+        if (!$("#fileUpload").val()) {
+            alert("Please select file to import", "error");
+            return false;
+        } else {
+
+        }
+    };
+    $(function () {
+        $('input[type=file]').change(function () {
+            var val = $(this).val().toLowerCase();
+            var regex = new RegExp("(.*?)\.(txt)$");
+            var csvex = new CsvExp("(.*?)\.(csv)$");
+            if (!(regex.test(val)) && !(csvex.test(val))) {
+                $(this).val('');
+                alert('Please select file in txt or csv format');
+            }
+        });
+    });
+
+
+    function fileSelected(input) {
+        if (input.files && input.files[0]) {
+
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                var b64 = e.target.result.split('base64,')[1];
+                $("#hdnFile").val(b64);
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    function submitConf() {
+
+        var quoteType = $('input[name=logType]:checked').val();
+        var conf = confirm('Are you sure you want to import ' + quoteType + ' data from txt file to server?');
+
+        if (conf) {
+
+        }
+        else {
+            clearInterval(si);
+            document.getElementById('lblProgress').innerHTML = "";
+            $("#buttonMedia").css('display', 'block');
+        }
+        return conf;
+    }
+</script>
+
+
+
+
+
