@@ -1,0 +1,76 @@
+﻿
+@{
+    ViewBag.Title = "Form";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        Search
+    </div>
+    <div class="panel-body">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="inner-container project-information-min-height p-10 m-b-10 p-b-0 serch-hi">
+                    <form class="search_form">
+                        <div class="input-group">
+                            <input type="text" style="height:48px" class="form-control no-border twitter-typeahead" id="srch-term1" placeholder="Search by quotation no." value="@ViewBag.QuoteNum">
+
+                            <span class="input-group-addon no-border">
+                                <label style="font-weight:normal!important"><input type="radio" name="formType" value="Quotation" @(ViewBag.formType == "Quotation" ? "checked" : "")> Quotation</label>
+                                <label style="font-weight:normal!important"><input type="radio" name="formType" value="WorkSheet" @(ViewBag.formType == "WorkSheet" ? "checked" : "")> WorkSheet</label>
+                                <label style="font-weight:normal!important"><input type="radio" name="formType" value="OrderConfirmation" @(ViewBag.formType == "OrderConfirmation" ? "checked" : "")> Order Confirmation</label>
+                                <label style="font-weight:normal!important"><input type="radio" name="formType" value="QBO" @(ViewBag.formType == "QBO" ? "checked" : "")> QBO</label>
+                                <label style="font-weight:normal!important"><input type="radio" name="formType" value="WorkOrder" @(ViewBag.formType == "WorkOrder" ? "checked" : "")> WorkOrder</label>
+                                <label style="font-weight:normal!important"><input type="radio" name="formType" value="Production" @(ViewBag.formType == "Production" ? "checked" : "")> Production</label>
+                                <label style="font-weight:normal!important; padding-right:100px;"></label>
+
+                                <button class="btn btn-primary button-padding-3 srch-bx" id="btnUpdateCust" onclick="SearchQuotationByQuoate($('#srch-term1').val()); return false;" type="submit"><span class="srch_spn"> Search</span></button>
+                                @if (ViewBag.Form != null)
+                                {
+                                    <button type="button" class="btn btn-primary" onclick="downloadPdf();"> Export to PDF</button>
+                                }
+                            </span>
+
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="divMailContent">
+        @Html.Raw(ViewBag.Form)
+    </div>
+</div>
+
+
+
+<script type="text/javascript">
+    function SearchQuotationByQuoate() {
+        if ($("#srch-term1").val() == "") {
+            alert("Please enter quotation no");
+            return false;
+        }
+
+        var formType = $('input[name=formType]:checked').val();
+
+        $('<form method="POST" action="/Form/Form">' +
+            '<input type="hidden" name="quoteNum" id="searchStr" value="' + $(" #srch-term1").val() + '">' +
+            '<input type="hidden" name="formType"  value="' + formType + '">' +
+            '</form>').appendTo('body').submit();
+    }
+
+    function downloadPdf() {
+        if ($("#srch-term1").val() == "") {
+            alert("Please enter quotation no");
+            return false;
+        }
+        var formType = $('input[name=formType]:checked').val();
+
+        var frm = "<form method='POST' action='/Form/DownloadPDF'> " +
+            "<input type='hidden' name='quoteNum' value='" + $(" #srch-term1").val() + "'/> " +
+            '<input type="hidden" name="formType"  value="' + formType + '">' +
+            "</form>";
+        $(frm).appendTo('body').submit();
+    }
+</script>
